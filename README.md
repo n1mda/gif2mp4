@@ -12,7 +12,7 @@ NSData *gif = [NSData dataWithContentsOfURL:[NSURL URLWithString:@"http://i.imgu
 NSString *outputPath = [NSTemporaryDirectory() stringByAppendingString:@"output.mp4"];
 
 GIFConverter *gifConverter = [[GIFConverter alloc] init];
-[gifConverter convertGIFToMP4:gif speed:1.0 output:outputPath completion:^(NSError *error){
+[gifConverter convertGIFToMP4:gif speed:1.0 size:CGSizeMake(200, 200) output:outputPath completion:^(NSError *error){
 	if(!error)
 		NSLog(@"Converted video!");
 }];

@@ -30,7 +30,7 @@
 
 @implementation GIFConverter
 
-- (void)convertGIFToMP4:(NSData *)gif speed:(float)speed output:(NSString *)path completion:(void (^)(NSError *))completion {
+- (void)convertGIFToMP4:(NSData *)gif speed:(float)speed size:(CGSize)size output:(NSString *)path completion:(void (^)(NSError *))completion {
     if(speed == 0.0)
         speed = 1.0; // You can't have 0 speed stupid
     
@@ -40,7 +40,7 @@
         return;
     }
     
-    NSDictionary *gifData = [self loadGIFData:gif];
+    NSDictionary *gifData = [self loadGIFData:gif resize:size];
     
     UIImage *first = [[gifData objectForKey:@"frames"] objectAtIndex:0];
     CGSize frameSize = first.size;
@@ -140,7 +140,7 @@
     return pxbuffer;
 }
 
-- (NSDictionary *)loadGIFData:(NSData *)data {
+- (NSDictionary *)loadGIFData:(NSData *)data resize:(CGSize)size {
     NSMutableArray *frames = nil;
     CGImageSourceRef src = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
     CGFloat animationTime = 0.f;
@@ -154,8 +154,26 @@
             NSNumber *delayTime = [frameProperties objectForKey:(NSString *)kCGImagePropertyGIFUnclampedDelayTime];
             animationTime += [delayTime floatValue];
             if(img) {
-                [frames addObject:[UIImage imageWithCGImage:img]];
-                CGImageRelease(img);
+                if(size.width != 0.0 && size.height != 0.0) {
+                    UIGraphicsBeginImageContext(size);
+                    CGFloat width = CGImageGetWidth(img);
+                    CGFloat height = CGImageGetHeight(img);
+                    int x = 0, y = 0;
+                    if(height > width) {
+                        CGFloat padding = size.height / height; height = height * padding; width = width * padding; x = (size.width/2) - (width/2); y = 0;
+                    } else if(width > height) {
+                        CGFloat padding = size.width / width; height = height * padding; width = width * padding; x = 0; y = (size.height/2) - (height/2);
+                    }
+                    
+                    [[UIImage imageWithCGImage:img] drawInRect:CGRectMake(x, y, width, height) blendMode:kCGBlendModeNormal alpha:1.0];
+                    [frames addObject:UIGraphicsGetImageFromCurrentImageContext()];
+                    UIGraphicsEndImageContext();
+                    CGImageRelease(img);
+
+                } else {
+                    [frames addObject:[UIImage imageWithCGImage:img]];
+                    CGImageRelease(img);
+                }
             }
         }
         CFRelease(src);
