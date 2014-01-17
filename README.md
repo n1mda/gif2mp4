@@ -3,6 +3,8 @@ gif2mp4
 
 (Objective-C) Convert .GIF to .MP4
 
+MP4 videos must be of a height and width that is a multiple of 16, therefore what you enter as size may not be what comes out in the other end
+
 # Usage:
 
 ```objective-c
