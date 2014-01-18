@@ -27,6 +27,9 @@
 
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
+#import <dispatch/dispatch.h>
+
+dispatch_queue_t backgroundQueue;
 
 @interface GIFConverter: NSObject
 
