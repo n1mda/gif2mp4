@@ -38,8 +38,9 @@
     return self;
 }
 
-- (void)convertGIFToMP4:(NSData *)gif speed:(float)speed size:(CGSize)size output:(NSString *)path completion:(void (^)(NSError *))completion {
+- (void)convertGIFToMP4:(NSData *)gif speed:(float)speed size:(CGSize)size repeat:(int)repeat output:(NSString *)path completion:(void (^)(NSError *))completion {
     
+    repeat++;
     __block float movie_speed = speed;
     
     dispatch_async(backgroundQueue, ^(void){
@@ -54,7 +55,7 @@
             return;
         }
         
-        NSDictionary *gifData = [self loadGIFData:gif resize:size];
+        NSDictionary *gifData = [self loadGIFData:gif resize:size repeat:repeat];
         
         UIImage *first = [[gifData objectForKey:@"frames"] objectAtIndex:0];
         CGSize frameSize = first.size;
@@ -102,7 +103,7 @@
         if(buffer)
             CVBufferRelease(buffer);
         
-        int fps = ([[gifData objectForKey:@"frames"] count] / [[gifData valueForKey:@"animationTime"] intValue]) * movie_speed;
+        int fps = ([[gifData objectForKey:@"frames"] count] / [[gifData valueForKey:@"animationTime"] floatValue]) * movie_speed;
         NSLog(@"FPS: %d", fps);
         
         int i = 0;
@@ -166,7 +167,7 @@
     return pxbuffer;
 }
 
-- (NSDictionary *)loadGIFData:(NSData *)data resize:(CGSize)size {
+- (NSDictionary *)loadGIFData:(NSData *)data resize:(CGSize)size repeat:(int)repeat {
     NSMutableArray *frames = nil;
     CGImageSourceRef src = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
     CGFloat animationTime = 0.f;
@@ -207,7 +208,12 @@
         CFRelease(src);
     }
     
-    return @{@"animationTime" : [NSNumber numberWithFloat:animationTime], @"frames":  frames};
+    NSArray *framesCopy = [frames copy];
+    for(int i = 1; i < repeat; i++) {
+        [frames addObjectsFromArray:framesCopy];
+    }
+    
+    return @{@"animationTime" : [NSNumber numberWithFloat:animationTime * repeat], @"frames":  frames};
 }
 
 @end
