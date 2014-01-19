@@ -48,7 +48,9 @@
         
         NSFileManager *fileManager = [NSFileManager defaultManager];
         if([fileManager fileExistsAtPath:path]) {
-            completion([[NSError alloc] initWithDomain:@"com.appreviation.gifconverter" code:-1 userInfo:@{NSLocalizedDescriptionKey: @"Output file already exists"}]);
+            dispatch_async(dispatch_get_main_queue(), ^(void){
+                completion([[NSError alloc] initWithDomain:@"com.appreviation.gifconverter" code:-1 userInfo:@{NSLocalizedDescriptionKey: @"Output file already exists"}]);
+            });
             return;
         }
         
@@ -63,7 +65,9 @@
         self.videoWriter = [[AVAssetWriter alloc] initWithURL:[NSURL fileURLWithPath:path] fileType:AVFileTypeQuickTimeMovie error:&error];
         
         if(error) {
-            completion(error);
+            dispatch_async(dispatch_get_main_queue(), ^(void){
+                completion(error);
+            });
             return;
         }
         
@@ -133,7 +137,9 @@
             NSLog(@"Finished writing");
             CVPixelBufferPoolRelease(adaptor.pixelBufferPool);
             self.videoWriter = nil;
-            completion(nil);
+            dispatch_async(dispatch_get_main_queue(), ^(void){
+                completion(nil);
+            });
         }];
     });
 }
