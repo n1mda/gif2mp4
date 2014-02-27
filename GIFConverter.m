@@ -63,7 +63,7 @@
         frameSize.height = round(frameSize.height / 16) * 16;
         
         NSError *error = nil;
-        self.videoWriter = [[AVAssetWriter alloc] initWithURL:[NSURL fileURLWithPath:path] fileType:AVFileTypeQuickTimeMovie error:&error];
+        self.videoWriter = [[AVAssetWriter alloc] initWithURL:[NSURL fileURLWithPath:path] fileType:AVFileTypeMPEG4 error:&error];
         
         if(error) {
             dispatch_async(dispatch_get_main_queue(), ^(void){
