@@ -95,23 +95,23 @@
         [self.videoWriter startSessionAtSourceTime:kCMTimeZero];
         
         CVPixelBufferRef buffer = NULL;
+        int fps = ([[gifData objectForKey:@"frames"] count] / [[gifData valueForKey:@"animationTime"] floatValue]) * movie_speed;
+        NSLog(@"FPS: %d", fps);
         buffer = [self pixelBufferFromCGImage:[first CGImage] size:frameSize];
-        BOOL result = [adaptor appendPixelBuffer:buffer withPresentationTime:kCMTimeZero];
+        BOOL result = [adaptor appendPixelBuffer:buffer withPresentationTime:CMTimeMake(0, fps)];
         if(result == NO)
             NSLog(@"Failed to append buffer");
         
         if(buffer)
             CVBufferRelease(buffer);
         
-        int fps = ([[gifData objectForKey:@"frames"] count] / [[gifData valueForKey:@"animationTime"] floatValue]) * movie_speed;
-        NSLog(@"FPS: %d", fps);
-        
         int i = 0;
-        while(i < [[gifData objectForKey:@"frames"] count]) {
-            UIImage *image = [[gifData objectForKey:@"frames"] objectAtIndex:i];
+        while(i < [[gifData objectForKey:@"frames"] count]-1) {
+            
             if(adaptor.assetWriterInput.readyForMoreMediaData) {
                 i++;
-                CMTime frameTime = CMTimeMake(1, fps);
+                UIImage *image = [[gifData objectForKey:@"frames"] objectAtIndex:i];
+                CMTime frameTime = CMTimeMake(0, fps);
                 CMTime lastTime = CMTimeMake(i, fps);
                 CMTime presentTime = CMTimeAdd(lastTime, frameTime);
                 
