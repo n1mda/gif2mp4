@@ -73,7 +73,7 @@
         }
         
         NSDictionary *videoSettings = [NSDictionary dictionaryWithObjectsAndKeys:
-                                       AVVideoCodecH264, AVVideoCodecKey,
+                                       AVVideoCodecTypeH264, AVVideoCodecKey,
                                        [NSNumber numberWithInt:frameSize.width], AVVideoWidthKey,
                                        [NSNumber numberWithInt:frameSize.height], AVVideoHeightKey,
                                        nil];
